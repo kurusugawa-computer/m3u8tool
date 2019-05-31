@@ -1,8 +1,7 @@
 # coding: utf-8
 
 import argparse
-import m3u8tool.splitter
-import m3u8tool.concatenater
+from m3u8tool import splitter, concatenator, converter
 
 def main():
     parser = argparse.ArgumentParser(description='Process m3u8+ts files.', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -14,18 +13,25 @@ def main():
     parser_split.add_argument('-t', '--output_ts_format', help='splitted ts file name format, if None then ignored.')
     parser_split.add_argument('input_m3u8', type=argparse.FileType('r'), help='input m3u8 file')
 
-    parser_cat = subparsers.add_parser('cat', help='cat m3u8+ts to catted file', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser_cat = subparsers.add_parser('cat', help='concatinate m3u8+ts to single file', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser_cat.add_argument('-t', '--output_ts', type=argparse.FileType('wb'), help='output ts file, if None then ignored.')
     parser_cat.add_argument('input_m3u8', type=argparse.FileType('r'), nargs='+', help='input m3u8 files')
     parser_cat.add_argument('output_m3u8', type=argparse.FileType('w'), help='output m3u8 file')
+
+    parser_convert = subparsers.add_parser('convert', help='convert file format', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser_convert.add_argument('-t', '--output_ts', type=str, help='output ts file, if None then ignored.')
+    parser_convert.add_argument('input_file', type=argparse.FileType('r'), help='input file')
+    parser_convert.add_argument('output_file', type=str, help='output file')
 
     args = parser.parse_args()
     print(args)
 
     if args.subcommand == 'split':
-        m3u8tool.splitter.split(**vars(args))
+        splitter.split(**vars(args))
     elif args.subcommand == 'cat':
-        m3u8tool.concatenater.cat(**vars(args))
+        concatenator.cat(**vars(args))
+    elif args.subcommand == 'convert':
+        converter.convert(**vars(args))
     else:
         parser.print_help()
 

@@ -1,6 +1,7 @@
+# coding: utf-8
+
 from m3u8tool.io import EXTINF, EXT_X_BYTERANGE, EXT_X_TARGETDURATION, MEDIA, parse, format_line
 import math
-
 
 def cat(input_m3u8, output_m3u8, output_ts, subcommand):
     cat_segments = []
