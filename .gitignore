@@ -1,0 +1,7 @@
+.vscode
+*.code-workspace
+*.egg-info
+testdata/
+
+__pycache__/
+*.pyc
