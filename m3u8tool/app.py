@@ -39,7 +39,6 @@ def main():
     parser_convert.add_argument('output_file', type=str, help='output file')
 
     args = parser.parse_args()
-    print(args)
 
     if args.subcommand == 'split':
         splitter.split(**vars(args))

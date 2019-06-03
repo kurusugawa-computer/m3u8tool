@@ -34,7 +34,7 @@ def split(input_m3u8, output_m3u8_format, output_ts_format, split_duration, spli
     if split_size == 0:
         split_size = sys.maxsize
 
-    (segments, header, footer) = parse(input_m3u8)
+    segments, header, footer = parse(input_m3u8)
 
     index = 1
     duration = 0.0
