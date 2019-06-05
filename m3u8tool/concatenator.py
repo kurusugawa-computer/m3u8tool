@@ -15,8 +15,8 @@
 # limitations under the License.
 #
 
-from m3u8tool.io import EXTINF, EXT_X_BYTERANGE, EXT_X_TARGETDURATION, MEDIA, parse, format_line
 import math
+from m3u8tool.io import EXTINF, EXT_X_BYTERANGE, EXT_X_TARGETDURATION, MEDIA, parse, format_line
 
 def cat(input_m3u8, output_m3u8, output_ts, subcommand):
     cat_segments = []
