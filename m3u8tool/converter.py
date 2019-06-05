@@ -18,7 +18,7 @@
 import os
 import subprocess
 
-def convert(input_file, output_file, output_ts, subcommand):
+def convert(input_file, output_file, output_ts, disable_audio, subcommand):
     ffmpeg_path = os.environ.get('FFMPEG_PATH', 'ffmpeg')
 
     output_ext = os.path.splitext(output_file)[1].lower()
@@ -27,8 +27,12 @@ def convert(input_file, output_file, output_ts, subcommand):
         ffmpeg_path,
         '-i', input_file.name,
         '-vcodec', 'copy',
-        '-acodec', 'copy',
     ]
+
+    if disable_audio:
+        exec_options += ['-an']
+    else:
+        exec_options += ['-acodec', 'copy']
 
     if output_ext == '.m3u8':
         exec_options += [

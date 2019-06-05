@@ -35,6 +35,7 @@ def main():
 
     parser_convert = subparsers.add_parser('convert', help='convert file format', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser_convert.add_argument('-t', '--output_ts', type=str, help='output ts file, if None then ignored.')
+    parser_convert.add_argument('-an', '--disable_audio', const=True, default=False, action='store_const', help='disable audio')
     parser_convert.add_argument('input_file', type=argparse.FileType('r'), help='input file')
     parser_convert.add_argument('output_file', type=str, help='output file')
 
