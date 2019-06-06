@@ -18,10 +18,11 @@
 import os
 import sys
 import math
+from pathlib import PurePath
 from m3u8tool.io import EXTINF, EXT_X_BYTERANGE, EXT_X_TARGETDURATION, MEDIA, parse, format_line
 
 
-def split(input_m3u8, output_m3u8_format, output_ts_format, split_duration, split_size, subcommand):
+def split(input_m3u8, output_m3u8_format, output_ts_format, split_duration, split_size, edit_media_path, subcommand):
     m3u8_path = input_m3u8.name
     m3u8_dirname = os.path.dirname(m3u8_path)
     m3u8_basename = os.path.basename(m3u8_path)
@@ -38,17 +39,16 @@ def split(input_m3u8, output_m3u8_format, output_ts_format, split_duration, spli
     index = 1
     duration = 0.0
     size = 0
-    total_duration = 0.0
-    total_size = 0
     fragments = []
 
     def write(fragments, index):
+        nonlocal m3u8_dirname, m3u8_basename, m3u8_filename
         output_m3u8_path = output_m3u8_format.format(
-            dirname=m3u8_dirname, basename=m3u8_basename, filename=m3u8_filename,
-            index=index, offset_time=total_duration, offset_pos=total_size,
+            dirname=m3u8_dirname, basename=m3u8_basename, filename=m3u8_filename, index=index,
         )
+        output_m3u8_dirname = os.path.dirname(output_m3u8_path)
 
-        target_duration = int(math.floor(max(map(lambda e: e[EXTINF]['segment_duration'], fragments))))
+        target_duration = int(math.floor(max([e[EXTINF]['segment_duration'] for e in fragments])))
 
         input_ts = None
         input_ts_path = None
@@ -61,13 +61,17 @@ def split(input_m3u8, output_m3u8_format, output_ts_format, split_duration, spli
             ts_basename = os.path.basename(ts_path)
             ts_filename = os.path.splitext(ts_basename)[0]
 
-            output_ts_path = output_ts_format.format(
-                dirname=ts_dirname, basename=ts_basename, filename=ts_filename,
-                index=index, offset_time=total_duration, offset_pos=total_size,
+            output_ts_media_path = output_ts_format.format(
+                dirname=ts_dirname, basename=ts_basename, filename=ts_filename, index=index
             )
 
+            if os.path.isabs(output_ts_media_path):
+                output_ts_path = output_ts_media_path
+            else:
+                output_ts_path = os.path.join(output_m3u8_dirname, output_ts_media_path)
+
             output_ts = open(output_ts_path, mode='wb')
-            print(output_ts_path + ' ', end='')
+            print(output_ts_media_path + ' ', end='')
 
         def header_replace(e):
             nonlocal target_duration
@@ -81,20 +85,33 @@ def split(input_m3u8, output_m3u8_format, output_ts_format, split_duration, spli
                 print(format_line(e), file=output_m3u8)
 
             for f in fragments:
-                if output_ts is not None:
+                media = f[MEDIA]
+                if output_ts is None:
+                    media_path = media['path']
+                    if edit_media_path and not os.path.isabs(media_path):
+                        try:
+                            media['path'] = str(PurePath(m3u8_dirname, media_path).relative_to(output_m3u8_dirname))
+                        except ValueError:
+                            media['path'] = os.path.abspath(os.path.join(m3u8_dirname, media_path))
+                else:
                     ext_x_byterange = f[EXT_X_BYTERANGE]
                     input_ts_offset = ext_x_byterange['segment_offset']
                     segment_size = ext_x_byterange['segment_size']
                     ext_x_byterange['segment_offset'] = ext_x_byterange['output_segment_offset']
-                    media = f[MEDIA]
 
                     if media['path'] != input_ts_path:
                         input_ts_path = media['path']
                         if input_ts is not None:
                             input_ts.close()
-                        input_ts = open(input_ts_path, mode='rb')
 
-                    media['path'] = output_ts_path
+                        if os.path.isabs(input_ts_path):
+                            open_ts_path = input_ts_path
+                        else:
+                            open_ts_path = os.path.join(m3u8_dirname, input_ts_path)
+
+                        input_ts = open(open_ts_path, mode='rb')
+
+                    media['path'] = output_ts_media_path
 
                     input_ts.seek(input_ts_offset)
                     output_ts.write(input_ts.read(segment_size))
@@ -131,3 +148,5 @@ def split(input_m3u8, output_m3u8_format, output_ts_format, split_duration, spli
 
     if len(fragments) > 0:
         write(fragments, index)
+
+    input_m3u8.close()

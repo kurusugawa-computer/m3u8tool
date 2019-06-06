@@ -67,7 +67,7 @@ def parse(input_m3u8):
 
     segments = []
 
-    def new_segment(): return {'kind': SEGMENT, 'elements': []}
+    def new_segment(): return {'kind': SEGMENT, 'm3u8_path': input_m3u8.name, 'elements': []}
 
     segment = new_segment()
 

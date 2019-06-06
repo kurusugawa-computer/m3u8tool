@@ -16,6 +16,7 @@
 #
 
 import math
+import os
 from m3u8tool.io import EXTINF, EXT_X_BYTERANGE, EXT_X_TARGETDURATION, MEDIA, parse, format_line
 
 def cat(input_m3u8, output_m3u8, output_ts, subcommand):
@@ -27,7 +28,7 @@ def cat(input_m3u8, output_m3u8, output_ts, subcommand):
         cat_header = header
         cat_footer = footer
 
-    target_duration = int(math.floor(max(map(lambda e: e[EXTINF]['segment_duration'], cat_segments))))
+    target_duration = int(math.floor(max([e[EXTINF]['segment_duration'] for e in cat_segments])))
 
     def header_replace(e):
         nonlocal target_duration
@@ -43,6 +44,9 @@ def cat(input_m3u8, output_m3u8, output_ts, subcommand):
     input_ts_path = None
 
     for f in cat_segments:
+        m3u8_path = f['m3u8_path']
+        m3u8_dirname = os.path.dirname(m3u8_path)
+
         if output_ts is not None:
             ext_x_byterange = f[EXT_X_BYTERANGE]
             input_ts_offset = ext_x_byterange['segment_offset']
@@ -55,7 +59,13 @@ def cat(input_m3u8, output_m3u8, output_ts, subcommand):
                 input_ts_path = media['path']
                 if input_ts is not None:
                     input_ts.close()
-                input_ts = open(input_ts_path, mode='rb')
+
+                if os.path.isabs(input_ts_path):
+                    open_ts_path = input_ts_path
+                else:
+                    open_ts_path = os.path.join(m3u8_dirname, input_ts_path)
+
+                input_ts = open(open_ts_path, mode='rb')
 
             media['path'] = output_ts.name
 
