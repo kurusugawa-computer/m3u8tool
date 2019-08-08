@@ -15,8 +15,18 @@
 # limitations under the License.
 #
 
-from setuptools import setup, find_packages
 import os
+
+from setuptools import find_packages, setup
+
+here = os.path.abspath(os.path.dirname(__file__))
+
+with open('README.md', 'r', encoding='utf-8') as f:
+    readme = f.read()
+
+about = {}
+with open(os.path.join(here, 'm3u8tool', '__version__.py'), 'r', encoding='utf-8') as f:
+    exec(f.read(), about)
 
 
 def strip_comments(l):
@@ -28,12 +38,14 @@ def reqs(*f):
         filter(None, [strip_comments(l) for l in open(os.path.join(os.getcwd(), *f)).readlines()])
     )
 
-
 setup(
     name='m3u8tool',
-    version='0.1.0',
+    version=about['__version__'],
     description='A HTTP Live Streaming (HLS) manipulation tool',
-    author='sato@kurusugawa.jp',
+    long_description=readme,
+    long_description_content_type='text/markdown',
+    author='squld',
+    author_email='sato@kurusugawa.jp',
     url='https://github.com/kurusugawa-computer/m3u8tool',
     install_requires=[reqs('requirements.txt')],
     packages=find_packages(exclude=["tests"]),
@@ -41,5 +53,21 @@ setup(
         "console_scripts": [
             "m3u8tool = m3u8tool.app:main"
         ]
-    }
+    },
+    license='Apache License 2.0',
+    python_requires='>=3.5',
+    keywords='m3u8',
+    classifiers=[
+        "Development Status :: 4 - Beta",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: Apache Software License",
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 3 :: Only",
+        "Programming Language :: Python :: 3.5",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Topic :: Utilities",
+        "Operating System :: OS Independent",
+    ],
 )
+
