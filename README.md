@@ -11,15 +11,12 @@ HTTP Live Streaming (HLS) フォーマットファイルを取り扱うための
 * ffmpeg 4.x (動画フォーマット変換する場合のみ)
 
 # Install
-pip
+
 ```shell
-$ pip install git+https://github.com/kurusugawa-computer/m3u8tool
+$ pip install m3u8tool
 ```
 
-pipenv
-```shell
-$ pipenv install -e git+https://github.com/kurusugawa-computer/m3u8tool#egg=m3u8tool
-```
+https://pypi.org/project/m3u8tool/
 
 # Usage
 
