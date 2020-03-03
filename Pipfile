@@ -8,4 +8,3 @@ name = "pypi"
 
 [dev-packages]
 m3u8tool = {editable = true,path = "."} # For reading setup.py
-twine = "*"
